@@ -63,14 +63,14 @@ O primeiro passo é conhecer o conjunto de retas realmente viáveis, pois existe
 
 ![infitas_retas_gráfico](graficos/escolha_threshold.png)
 
-podemos ver que cada uma das diferentes retas que separam dois pontos consecutivos em determinado eixo delimitam exatamente o mesmo grupo de dados, ou seja, se escolhermos qualquer uma delas os pontos a esquerda e a direita vão ser exatamente os mesmos. podemos escolher um representante dessas retas que fica bem no meio dos pontos consecutivos para deixar a reta o mais longe possível de "encostar" nos pontos, isso ajuda que novos dados com valores muito semelhantes aos antigos não fiquem de um lado errado da separação, usamos a seguinte formula para pegar a reta entre dois pontos:
+podemos ver que cada uma das diferentes retas que separam dois pontos consecutivos em determinado eixo delimitam exatamente o mesmo grupo de dados, ou seja, se escolhermos qualquer uma delas os pontos a esquerda e a direita vão ser exatamente os mesmos. podemos escolher um representante dessas retas que fica bem no meio dos pontos consecutivos para deixar a reta o mais longe possível de "encostar" nos pontos, isso ajuda que novos dados com valores muito semelhantes aos antigos não fiquem de um lado errado da separação, usamos a seguinte formula para pegar a reta entre dois pontos consecutivos:
 
-    p1 = valor do ponto no eixo X,Y,Z... mais a esquerda (menor)
-    p2 = valor do ponto no eixo X,Y,Z... mais a direita (maior)
+    p1 = valor do ponto no respectivo eixo mais a esquerda (menor)
+    p2 = valor do ponto no respectivo eixo mais a direita (maior)
 
     (p2 + p1) / 2
 
-Dessa forma podemos pegar todas as retas possíveis entre cada um dos pontos para analisar qual a melhor, graficamente ficaria assim:
+Dessa forma podemos pegar todas as retas possíveis entre cada um dos pontos para analisar qual a melhor, da seguinte maneira:
 
     1- pegar todos os valores únicos do respectivo eixo
     2- listar em ordem crescente
@@ -105,17 +105,17 @@ com essas informações vamos calcular o gini ponderado para esse Threhold
 
     gini ponderado = (0.48 * 10) + (0 * 8) / 18 = 0.2666
 
-vamos fazer o mesmo processo para cada um dos Thresholds, no final vamos ter vários valores para o `gini ponderado` vamos escolher o menor valor, isso signiufica que esse Threshold foi o que mais bem separou os dados. a situação ideal seria um Threshold que separa os dados de forma que todas as amostras de uma classe fiquem de uma lado e todas as amostras de outra classe fiquem de outro, fazendo isso pegamos achamos a linha que mais chega perto disso.
+vamos fazer o mesmo processo para cada um dos Thresholds, no final vamos ter vários valores para o `gini ponderado` vamos escolher o menor valor, isso signiufica que esse Threshold foi o que mais bem separou os dados. a situação ideal seria um Threshold que separa os dados de forma que todas as amostras de uma classe fiquem de uma lado e todas as amostras de outra classe fiquem de outro, fazendo isso achamos a linha que mais chega perto de fazer isso disso.
 
 ## Como isso funciona na ao montar a árvore de decisão
 
-Agora que já sabemos como selecionar os Thresholds podemos começar a entender como a arvore de decisão é montada. Normalmente temos um Dataset de dados tabulares para nos basear para construção da nossa arvore o primeiro passo é selecionar em qual coluna (eixo do gráfico, mas lembrando que podem existir N dimensões) vai ser usada dentre tantas que existem, para isso precisamos escolher o melhor Threshold de cada uma dessas colunas e avaliar qual o seu gini, dessa forma vamos saber qual é a melhor coluna para separar os dados e qual o melhor Threshold para essa coluna e vamos seleciona-la para o nó da arvore, e vamos passar a tabela em diante considerando o threshold para criar um no a esquerda (linhas da tabela onde o valor na coluna selecionada <= threshold) e um nó a direita (linhas da tabela o valor na coluna selecionada > threshold) e vamos fazer o mesmo processo para os nós seguintes (mas agora com a tabela com menos linhas após passar pelo filtro do threshold).
+Agora que já sabemos como selecionar os Thresholds podemos começar a entender como a arvore de decisão é montada. Normalmente temos um Dataset de dados tabulares para nos basear para construção da nossa arvore, o primeiro passo é selecionar em qual coluna (eixo do gráfico, mas lembrando que podem existir N dimensões) vai ser usada dentre tantas que existem, para isso precisamos escolher o melhor Threshold de **cada uma dessas colunas** e avaliar qual o seu gini, dessa forma vamos saber qual é a melhor coluna e seu respectivo threshold para separar os dados baseado no menor gini entre elas, e vamos seleciona-la para o nó da arvore, após isso vamos passar a tabela para os nós em diante, considerando o threshold para criar um no a esquerda (linhas da tabela onde o valor na coluna selecionada <= threshold) e um nó a direita (linhas da tabela o valor na coluna selecionada > threshold) e vamos fazer o mesmo processo para os nós seguintes
 
 No código a função que é responsável por essa etapa é `create_tree` em `decision_tree.py`
 
 ## Quando a arvore para de crescer:
 
-Se não definirmos nenhum critério de para para a arvore ela vai crescer até que todas as linhas tenham sido usadas e não sobre mais nenhuma amostra, mas isso faz com que a arvore Overfitting, isso basicamente é quando a arvore se molda muito aos dados usados durante o treinamento de forma que se forem usados dados novos a arvore vai errar por estar "presa" demais aos dados antigos, vale a pena estudar mais sobre o tópico caso você se interesse em ML. para evitar que isso aconteça precisamos definir os critérios de parada, os principais e que foram usados nesse código foram:
+Se não definirmos nenhum critério de parada a arvore vai crescer até que todas as linhas tenham sido usadas e não sobre mais nenhuma amostra, mas isso faz com que a arvore Overfitting, isso basicamente é quando a arvore se molda muito aos dados usados durante o treinamento de forma que se forem usados dados novos a arvore vai errar por estar "presa" demais aos dados antigos, vale a pena estudar mais sobre o tópico caso você se interesse em ML. para evitar que isso aconteça precisamos definir os critérios de parada, os principais e que foram usados nesse código foram:
 
 - Quando conjunto de targets é puro, ou seja todas as amostras do nó são da mesma classe
 - arvore muito profunda (parametro **max_deep** da classe `Decision_tree`)
